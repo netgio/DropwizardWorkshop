@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no">
-    <title>Loan Calculator</title>
+    <title>Loan Calculator (LB)</title>
     <!-- Styles -->
     
     <link rel="stylesheet" href="./style.css">
@@ -21,13 +21,17 @@
 		var currBillID;
 		smallscreen = screen.width < 600;
 		var backPage = "bill-search";
+		var ports = [9000, 9091, 9092] // configure these to match the service instances you start up
 		
 		function calculateLoan() {		
 			var scriptTag = document.createElement('SCRIPT');
 			var principle = document.getElementById("principle").value;
 			var term = document.getElementById("term").value;
 			var rate = document.getElementById("rate").value;
-			var url = "http://localhost:9000/loan?principle=" + principle + "&term=" + term + "&rate=" + rate;
+			var lb = document.getElementById("lb").checked;
+			var port = lb?ports[Math.floor(Math.random() * 3)]:9000;
+			document.getElementById("port").innerText = port;
+			var url = "http://localhost:" + port + "/loan?principle=" + principle + "&term=" + term + "&rate=" + rate;
 			
 			xmlhttp = new XMLHttpRequest();
 			xmlhttp.onload = function() {
@@ -35,6 +39,7 @@
 				pmt = JSON.parse(jsonResponse);
 				
 				document.getElementById('monthlypayment').innerHTML=pmt.paymentValue;
+				document.getElementById('load').innerHTML=pmt.id;
 				document.getElementById('paymentresult').style.opacity='1';
 			}
 			xmlhttp.open("GET", url, true);
@@ -48,6 +53,8 @@
 			document.getElementById("rate").value = "";
 			document.getElementById("term").value = "";
 			document.getElementById('paymentresult').style.opacity='0';
+			document.getElementById('port').innerText = "TBD";
+			document.getElementById('load').innerText = "TBD";
 		}
 	</script>
     
@@ -57,7 +64,7 @@
 <body>
 	<div id="pages">
 		<div id="loan-inputs">
-			<h1>Loan Calculator</h1>
+			<h1>Loan Calculator (LB)</h1>
 			<div id="entrywrapper">
 			<p><span class="textlabel">Enter Principle:</span> <input type="text" id="principle"/></p>
 			<p><span class="textlabel">Enter Term:</span> <input type="text" id="term"/></p>
@@ -66,6 +73,9 @@
 			<div id="paymentresult"><p>Monthly Payment: <span id="monthlypayment">--</span></p></div>
 			<div id="button" onClick="calculateLoan();">Calculate Loan</div>
 			<div id="button" onClick="reset();">Reset</div>
+			<p><span class="textlabel">Load Balance:</span> <input type="checkbox" value="false" id="lb"/> </p>
+			<p><span class="textlabel">Port used:</span><span id="port">TBD</span></p>
+			<p><span class="textlabel">Instance load:</span><span id="load">TBD</span></p>
 		</div>
 	</div>
   
